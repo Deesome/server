@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const avatar = await uploadCloudinary(avatarLocalPath)
-    console.log(avatar)
+   
 
     if(!avatar){
         throw new apiError(400,"Avatar is required")
@@ -93,7 +93,7 @@ const login = asyncHandler(async(req,res)=>{
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-    console.log("Logged in User", loggedInUser)
+    
 
     const options = {
         httpOnly : true,
@@ -147,7 +147,7 @@ const logout = asyncHandler(async(req,res)=>{
 
 const refreshAccessToken = asyncHandler(async(req,res)=>{
     const incomingRefreshToken = req.cookies.refreshToken
-    console.log("Incoming refresh Token",incomingRefreshToken)
+    
 
     if(!incomingRefreshToken){
         throw new apiError(400,"Token not found")
@@ -156,7 +156,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
    try {
      const decodedToken = jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
  
-     console.log(decodedToken)
+     
  
      const user = await User.findById(decodedToken._id)
      if(!user){

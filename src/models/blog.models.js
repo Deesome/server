@@ -1,4 +1,4 @@
-import { type } from "express/lib/response"
+
 import mongoose from "mongoose"
 
 const blogSchema = new mongoose.Schema({
@@ -14,7 +14,7 @@ const blogSchema = new mongoose.Schema({
         lowercase:true
     },
 
-    image : {
+    blogImage : {
         type : String,
         default : ""
     },
@@ -23,9 +23,9 @@ const blogSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : "User"
     },
-    tags : {
-        type :String
-    }
+    tags : [
+        {type :String}
+    ]
 },{timestamps:true})
 
 export const Blog = mongoose.model("Blog",blogSchema)
