@@ -123,9 +123,26 @@ const login = asyncHandler(async(req,res)=>{
 })
 
 const logout = asyncHandler(async(req,res)=>{
-    //user authorisation before making the request , 
+     //user authorisation before making the request , 
     //so we have to find userid to make sure user is logged in 
     //clear refreshToken form database
     //clear cookie from browser 
+
+    const userId = req.userId
+    if(!userId){
+        throw new apiError(401,"User not logged in")
+    }
+
+    await User.findByIdAndUpdate(userId,{refreshToken:""})
+
+    res.clearCookie("accessToken")
+    res.clearCookie("refreshToken")
+
+    return res
+            .status(200)
+            .json("User Logged Out SuccessFully")
+   
 })
-export { registerUser,login }
+
+
+export { registerUser,login,logout }
