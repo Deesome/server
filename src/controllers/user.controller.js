@@ -3,6 +3,7 @@ import apiError from "../utils/apiError.js"
 import {User} from "../models/user.models.js"
 import { uploadCloudinary } from "../utils/cloudinary.js"
 import {apiResponse} from "../utils/apiResponse.js"
+import jwt from "jsonwebtoken"
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -144,5 +145,98 @@ const logout = asyncHandler(async(req,res)=>{
    
 })
 
+const refreshAccessToken = asyncHandler(async(req,res)=>{
+    const incomingRefreshToken = req.cookies.refreshToken
+    console.log("Incoming refresh Token",incomingRefreshToken)
 
-export { registerUser,login,logout }
+    if(!incomingRefreshToken){
+        throw new apiError(400,"Token not found")
+    }
+
+   try {
+     const decodedToken = jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
+ 
+     console.log(decodedToken)
+ 
+     const user = await User.findById(decodedToken._id)
+     if(!user){
+         throw new apiError(400,"Invalid Token")
+     }
+ 
+     if(incomingRefreshToken !== user.refreshToken){
+         throw new apiError(400,"Token Expired or used")
+     }
+ 
+     const options = {
+         httpOnly : true,
+         secure : true
+        }
+ 
+     const newAccessToken = user.generateAccessToken()
+     const newRefreshToken =user.generateRefreshToken()
+ 
+     user.refreshToken = newRefreshToken
+     await user.save({validateBeforeSave:false})
+ 
+     res.status(200)
+     .cookie("accessToken",newAccessToken,options)
+     .cookie("refreshToken",newRefreshToken,options)
+        .json(
+         new apiResponse(200,
+             {
+                 accessToken:newAccessToken,
+                 refreshToken:newRefreshToken
+             },
+             "Access Token Refreshed"
+         )
+        )
+ 
+   } catch (error) {
+        throw new apiError(401,error.message || "Invalid Refresh Token")
+    
+   }
+
+
+
+})
+
+const updateCurrentPassword = asyncHandler(async(req,res)=>{
+   
+   //// steps
+    //1. get old and new password from body 
+    //2. check for old password wheather its empty or not 
+    //3. get user with the help of old password 
+    //4. Verify password
+    //5. update and save the password in data base 
+
+    const {oldPassword,newPassword} = req.body;
+
+    if(!oldPassword){
+        throw new apiError(401,"Password is required")
+    }
+
+    const user = await User.findById(req.userId)
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+    if(!isPasswordCorrect){
+        throw new apiError(401,"Invalid old password")
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave:false})
+
+    return res
+    .status(200)
+    .json(new apiResponse(200,{},"Password updated successfully"))
+
+
+
+
+
+    
+
+
+
+})
+
+
+export { registerUser,login,logout,refreshAccessToken,updateCurrentPassword }
