@@ -71,6 +71,7 @@ const login = asyncHandler(async(req,res)=>{
     if(userName == "" && password == ""){
         throw new apiError(400,"Username and Password is required")
     }
+    console.log(userName)
     const user = await User.findOne({userName})
     
 
@@ -98,6 +99,7 @@ const login = asyncHandler(async(req,res)=>{
     const options = {
         httpOnly : true,
         secure : true
+        
     }
 
     
@@ -170,6 +172,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
      const options = {
          httpOnly : true,
          secure : true
+         
         }
  
      const newAccessToken = user.generateAccessToken()

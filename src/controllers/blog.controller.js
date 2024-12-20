@@ -12,6 +12,8 @@ const addBlog = asyncHandler(async(req,res)=>{
     //validation of data 
     //add blog to db
     const {title,content,tags,author} = req.body
+    
+    console.log(title)
 
     if(title == "" && content == "" && tags == "" && author ==""){
         throw new apiError(400,"All Fields are required")
@@ -26,7 +28,7 @@ const addBlog = asyncHandler(async(req,res)=>{
             title,
             content,
             tags,
-            author,
+            author : req.userId,
             blogImage : blogImageCloudinary?.url
 
 
@@ -51,7 +53,7 @@ const addBlog = asyncHandler(async(req,res)=>{
  const blogs = asyncHandler(async(req,res)=>{
     //get all blofs from db
    try {
-    const blogs =  await Blog.find()
+    const blogs =  await Blog.find().populate("author",["userName"])
  
     console.log(blogs)
     res.status(200).json(
@@ -142,7 +144,6 @@ try {
 }
 
 })
-
 
 // delete a blog
 

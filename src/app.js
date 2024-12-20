@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors"
 import cookieParser from 'cookie-parser';
+import apiError from "./utils/apiError.js";
 
 
 
@@ -29,6 +30,25 @@ import { blogRouter } from "./routes/blog.route.js";
 
 app.use("/users",userRouter)
 app.use("/blogs",blogRouter)
+
+
+
+app.use((err, req, res, next) => {
+    if (err instanceof apiError) {
+        // Send the JSON error response for your custom error
+        return res.status(err.statusCode || 500).json({
+            status: "error",
+            message: err.message,
+            errors: err.errors,
+        });
+    }
+
+    // If error is not an instance of apiError, send a generic error response
+    res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+    });
+});
 
 
 
