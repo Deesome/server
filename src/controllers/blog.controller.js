@@ -74,12 +74,13 @@ const blogById = asyncHandler(async(req,res)=>{
     //send that blog in response
 
     const {id} = req.params
+    
     if(!id){
         throw new apiError(400,"Blog ID is required")
     }
 
     try {
-         const blog = await Blog.findById(id)
+         const blog = await Blog.findById(id).populate("author",["userName"])
          if(!blog){
             throw new apiError(404,"Blog Not Found")
          }
