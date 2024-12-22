@@ -4,13 +4,7 @@ import cookieParser from 'cookie-parser';
 import apiError from "./utils/apiError.js";
 
 
-
-
 const app = express()
-
-
-
-
 
 app.use(cors({
     origin : process.env.CORS_ORIGIN,
